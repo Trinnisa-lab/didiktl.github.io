@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kuis Pemetaan Pola Pikir</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { color: #333; }
+    .question { margin-bottom: 20px; }
+    .hasil-box { 
+      margin-top: 20px; 
+      padding: 15px; 
+      border: 2px solid #333; 
+      display: none; 
+    }
+    button { margin-top: 10px; padding: 8px 15px; cursor: pointer; }
+    .button-group { margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <h1>Kuesioner Pemetaan Pola Pikir Siswa</h1>
+
+  <form id="quizForm">
+    <!-- Contoh soal negatif -->
+    <div class="question" data-type="negative">
+      <p>1. Saya cenderung menghindari tugas yang terlalu sulit...</p>
+      <input type="radio" name="q1" value="4"> Sangat Setuju<br>
+      <input type="radio" name="q1" value="3"> Setuju<br>
+      <input type="radio" name="q1" value="2"> Tidak Setuju<br>
+      <input type="radio" name="q1" value="1"> Sangat Tidak Setuju<br>
+    </div>
+
+    <!-- Contoh soal positif -->
+    <div class="question" data-type="positive">
+      <p>2. Saya percaya usaha keras dapat meningkatkan kemampuan saya...</p>
+      <input type="radio" name="q2" value="4"> Sangat Setuju<br>
+      <input type="radio" name="q2" value="3"> Setuju<br>
+      <input type="radio" name="q2" value="2"> Tidak Setuju<br>
+      <input type="radio" name="q2" value="1"> Sangat Tidak Setuju<br>
+    </div>
+
+    <div class="button-group">
+      <button type="button" onclick="tampilkanHasil()">Tampilkan Hasil</button>
+      <button type="button" onclick="resetForm()">Reset</button>
+    </div>
+  </form>
+
+  <div id="hasil" class="hasil-box"></div>
+
+  <script>
+    function tampilkanHasil() {
+      const form = document.getElementById("quizForm");
+      const hasilBox = document.getElementById("hasil");
+      const questions = document.querySelectorAll(".question");
+
+      const data = new FormData(form);
+      let total = 0;
+      let answered = 0;
+
+      questions.forEach((q, index) => {
+        const name = "q" + (index + 1);
+        const type = q.getAttribute("data-type"); // cek tipe soal
+        const value = data.get(name);
+
+        if (value) {
+          let skor = parseInt(value);
+
+          // jika pernyataan negatif → skor dibalik
+          if (type === "negative") {
+            skor = 5 - skor; // misal 4→1, 3→2, dst
+          }
+
+          total += skor;
+          answered++;
+        }
+      });
+
+      const totalQuestions = questions.length;
+      if (answered < totalQuestions) {
+        alert("Harap jawab semua pertanyaan sebelum melihat hasil!");
+        return;
+      }
+
+      const maxScore = totalQuestions * 4;
+      const percent = (total / maxScore) * 100;
+
+      let kategori = "";
+      if (percent >= 70) {
+        kategori = "Growth Mindset";
+      } else if (percent >= 40) {
+        kategori = "Campuran (Growth & Fixed)";
+      } else {
+        kategori = "Fixed Mindset";
+      }
+
+      let hasilTeks = `
+        <h3>Hasil Kuis Anda</h3>
+        <p><b>Skor:</b> ${total} dari ${maxScore} (${percent.toFixed(1)}%)</p>
+        <p><b>Kategori:</b> ${kategori}</p>
+      `;
+
+      hasilBox.innerHTML = hasilTeks;
+      hasilBox.style.display = "block";
+    }
+
+    function resetForm() {
+      const form = document.getElementById("quizForm");
+      const hasilBox = document.getElementById("hasil");
+      form.reset();
+      hasilBox.style.display = "none";
+      hasilBox.innerHTML = "";
+    }
+  </script>
+</body>
+</html>
